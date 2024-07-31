@@ -43,5 +43,13 @@ def generate_url():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/thrivecart-webhook', methods=['POST'])
+def thrivecart_webhook():
+    data = request.get_json()
+    # Process the webhook data here
+    print("Webhook received:", data)
+    return jsonify({'status': 'success'}), 200
+
 if __name__ == '__main__':
     app.run(debug=True)
+
