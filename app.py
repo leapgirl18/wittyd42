@@ -46,10 +46,8 @@ def generate_url():
 @app.route('/thrivecart-webhook', methods=['POST'])
 def thrivecart_webhook():
     data = request.get_json()
-    # Process the webhook data here
-    print("Webhook received:", data)
-    return jsonify({'status': 'success'}), 200
+    # Process the webhook data as needed
+    return jsonify({'status': 'success'})
 
 if __name__ == '__main__':
     app.run(debug=True)
-
