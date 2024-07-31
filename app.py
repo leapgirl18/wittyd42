@@ -1,51 +1,43 @@
-from flask import Flask, request, jsonify
 import boto3
+import json
 import os
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Load AWS credentials from environment variables
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-AWS_SESSION_TOKEN = os.getenv('AWS_SESSION_TOKEN')  # Optional, depending on your setup
-
-# Initialize the S3 client
-s3_client = boto3.client('s3',
-                         aws_access_key_id=AWS_ACCESS_KEY_ID,
-                         aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-                         aws_session_token=AWS_SESSION_TOKEN)
-
 @app.route('/generate-url', methods=['POST'])
 def generate_url():
-    bucket_name = 'your_bucket_name'
-    object_key = 'path/to/your/ebook.pdf'
+    bucket_name = 'dream29'
+    object_key = 'Dream-PatywyEbook-Bluept7.15.pdf'
     expiration = 900  # URL expiration time in seconds (15 minutes)
-
+    
     try:
-        # Extract customer information from the request
-        data = request.json
-        email = data.get('email')
-        order_id = data.get('order_id')
-
-        if not email or not order_id:
-            return jsonify({'error': "Missing required parameters 'email' or 'order_id'"}), 400
-
-        # Generate unique pre-signed URL
+        # Retrieve AWS credentials from environment variables
+        aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
+        aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+        
+        # Initialize the S3 client with the retrieved credentials
+        s3_client = boto3.client(
+            's3',
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key
+        )
+        
+        # Generate pre-signed URL
         presigned_url = s3_client.generate_presigned_url(
             'get_object',
             Params={
                 'Bucket': bucket_name,
                 'Key': object_key,
-                'ResponseContentDisposition': f'attachment; filename="{order_id}_{object_key}"',
+                'ResponseContentDisposition': 'attachment',
             },
-            ExpiresIn=expiration
+            ExpiresIn=expiration  # Use ExpiresIn to specify expiration in seconds
         )
-
+        
         # Return the pre-signed URL as part of the response
         return jsonify({'url': presigned_url})
-
+    
     except Exception as e:
-        print(e)
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
