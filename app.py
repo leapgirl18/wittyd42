@@ -5,9 +5,9 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return 'Service is up and running!'
+@app.route('/', methods=['GET'])
+def home():
+    return "Welcome to the Webhook Service!"
 
 @app.route('/generate-url', methods=['POST'])
 def generate_url():
@@ -16,7 +16,7 @@ def generate_url():
     order_id = data.get('order_id')
     bucket_name = 'dream29'
     object_key = 'Dream-PatywyEbook-Bluept7.15.pdf'
-
+    
     aws_access_key_id = os.environ.get('AWS_ACCESS_KEY_ID')
     aws_secret_access_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
 
@@ -32,6 +32,7 @@ def generate_url():
                              aws_secret_access_key=aws_secret_access_key)
 
     try:
+        # Generate pre-signed URL for S3 object
         presigned_url = s3_client.generate_presigned_url(
             'get_object',
             Params={
@@ -41,14 +42,19 @@ def generate_url():
             },
             ExpiresIn=3600
         )
-        return jsonify({'url': presigned_url}), 200
+        return jsonify({'url': presigned_url})
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/thrivecart-webhook', methods=['POST'])
+@app.route('/thrivecart-webhook', methods=['POST', 'HEAD'])
 def thrivecart_webhook():
+    if request.method == 'HEAD':
+        return '', 200
+    
     data = request.get_json()
+    # Process the webhook data here
+    # Add your processing code here
     print("Received ThriveCart webhook data:", data)
     return jsonify({'status': 'success'}), 200
 
