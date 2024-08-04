@@ -51,7 +51,7 @@ def thrivecart_webhook():
     data = request.get_json()
     # Add the Authorization header
     headers = {
-        'Authorization': 'your_secret_token',
+        'Authorization': 'FzTCEllvPZFb/j15RalH0uHW18wtpFEQ8kRwLzii',  # replace with your actual secret token
         'Content-Type': 'application/json'
     }
 
@@ -64,3 +64,4 @@ def thrivecart_webhook():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
